@@ -81,7 +81,7 @@ namespace {
     if (note_on_next_line ||
         (columns > 0 &&
          (columns <= prior_width + 3 ||
-          note.length() > columns - (prior_width + 3))))
+          note.length() > columns - (prior_width + 3) + 30)))
       out << "\n    ;";
     else
       out << "  ;";
