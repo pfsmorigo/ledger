@@ -74,6 +74,7 @@ namespace {
   void print_note(std::ostream&     out,
                   const string&     note,
                   const bool        note_on_next_line,
+                  const bool        is_expr,
                   const std::size_t columns,
                   const std::size_t prior_width)
   {
@@ -83,8 +84,10 @@ namespace {
          (columns <= prior_width + 3 ||
           note.length() > columns - (prior_width + 3) + 30)))
       out << "\n    ;";
-    else
+	else if (is_expr)
       out << "  ;";
+    else
+      out << "   ;";
 
     bool need_separator = false;
     for (const char * p = note.c_str(); *p; p++) {
@@ -104,6 +107,7 @@ namespace {
   {
     format_type_t          format_type = FMT_WRITTEN;
     optional<const char *> format;
+	bool is_expr = false;
 
     if (report.HANDLED(date_format_)) {
       format_type = FMT_CUSTOM;
@@ -137,7 +141,9 @@ namespace {
 
     if (xact.note)
       print_note(out, *xact.note, xact.has_flags(ITEM_NOTE_ON_NEXT_LINE),
-                 columns, unistring(leader).length());
+                 is_expr, columns, unistring(leader).length());
+	is_expr = false;
+
     out << '\n';
 
     if (xact.metadata) {
@@ -212,6 +218,7 @@ namespace {
           std::ostringstream amt_str;
           justify(amt_str, post->amount_expr->text(), (int)amount_width+1, true);
           amt = amt_str.str();
+		  is_expr = true;
         }
         else if (count == 2 && index == 2 &&
                  post_has_simple_amount(*post) &&
@@ -279,7 +286,8 @@ namespace {
 
       if (post->note)
         print_note(out, *post->note, post->has_flags(ITEM_NOTE_ON_NEXT_LINE),
-                   columns, 4 + account_width);
+                   is_expr, columns, 4 + account_width);
+	  is_expr = false;
       out << '\n';
     }
   }
